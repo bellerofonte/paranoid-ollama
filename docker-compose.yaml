@@ -1,0 +1,65 @@
+services:
+  ollama:
+    build:
+      context: .
+    container_name: ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    networks:
+      - restricted_net
+    volumes:
+      - ollama-data:/root/.ollama
+      - ./scripts/start-ollama.sh:/start-ollama.sh:ro
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    entrypoint: ["/bin/bash", "/start-ollama.sh"]
+    healthcheck:
+      test: ["CMD", "curl", "-fs", "http://localhost:11434/api/tags"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  ollama-puller:
+    build:
+      context: .
+    container_name: ollama-puller
+    restart: "no"
+    networks:
+      - restricted_net
+      - unrestricted_net
+    volumes:
+      - ollama-data:/root/.ollama
+      - ./scripts/pull-model.sh:/pull-model.sh:ro
+    entrypoint: ["/bin/bash", "/pull-model.sh"]
+    depends_on:
+      - ollama
+
+  socat:
+    image: alpine/socat
+    container_name: socat
+    networks:
+      - restricted_net
+      - unrestricted_net
+    ports:
+      - "11434:11434"
+    volumes:
+      - ./scripts/socat.sh:/socat.sh:ro
+    entrypoint: ["/bin/sh", "/socat.sh"]
+
+volumes:
+  ollama-data:
+  open-webui-data:
+
+networks:
+  restricted_net:
+    driver: bridge
+    internal: true
+
+  unrestricted_net:
+    driver: bridge
