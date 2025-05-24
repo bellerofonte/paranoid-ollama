@@ -7,7 +7,7 @@ Run ollama inside Docker container fully local forbidding it to establish any ou
 
 ```bash
 git clone https://github.com/bellerofonte/paranoid-ollama.git .
-chmod +x scripts/*.sh
+docker compose build --no-cache
 ```
 
 ### Run
@@ -17,5 +17,5 @@ docker compose up -d
 
 ### Access Ollama
 ```bash
-curl http://localhost:11434/api/generate -d '{"model": "deepseek-coder:33b", "prompt": "Hello, world!"}'
+curl http://localhost:11434/api/generate -d '{"model": "codellama:13b-code", "prompt": "Hello, world!"}'
 ```
