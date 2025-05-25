@@ -7,7 +7,7 @@ RUN apt update && apt install -y curl wget net-tools && apt clean
 WORKDIR /root/.ollama
 
 # Set the model name (can be overridden at build time)
-ARG MODEL_NAME="codellama:13b-code"
+ARG MODEL_NAME="qwen2.5-coder:14b"
 
 # Start Ollama server, wait for it to be ready, download the model, then stop the server
 RUN nohup sh -c "ollama serve &" && \
